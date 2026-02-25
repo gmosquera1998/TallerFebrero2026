@@ -1,0 +1,36 @@
+---
+- name: Hardening de Servidores
+  hosts: linux
+  become: true
+
+  tasks:
+    - name: Update all installed packages in CentOS
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+      when: ansible_os_family == "RedHat"
+
+    - name: Update all installed packages in Ubuntu
+      ansible.builtin.apt:
+        name: "*"
+        state: latest
+        update_cache: true
+      when: ansible_os_family == "Debian"
+
+    - name: Configurar PermitRootLogin a no (Pizarra 1)
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: "PermitRootLogin no"
+      notify: 
+        - Reiniciar SSH
+        - Reboot servers
+
+  handlers:
+    - name: Reiniciar SSH
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
+
+    - name: Reboot servers
+      ansible.builtin.reboot:

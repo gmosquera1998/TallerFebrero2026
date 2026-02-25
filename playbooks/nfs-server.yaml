@@ -1,0 +1,39 @@
+---
+- hosts: fileserver
+  become: true
+
+  tasks:
+    - name: Install nfs server
+      ansible.builtin.dnf:
+        name: nfs-utils
+        state: present
+
+    - name: Create shared directory
+      ansible.builtin.file:
+        path: /srv/nfs/shared
+        state: directory
+        owner: nobody
+        mode: '0777'
+
+    - name: Export shared directory
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        line: "/srv/nfs/shared 192.168.10.0/24(rw)"
+        state: present
+
+    - name: Service NFS is started
+      ansible.builtin.systemd_service:
+        name: nfs-server
+        state: started
+        enabled: true
+
+    - name: NFS, Mountd y RPC-bind enabled in firewalld
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        state: enabled
+        permanent: true
+        immediate: true
+      loop:
+        - nfs
+        - mountd
+        - rpc-bind
