@@ -1,0 +1,12 @@
+[Unit]
+Description=Python Webserver sirviendo /mnt/shared
+After=network.target autofs.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -m http.server 8080 --directory /mnt/shared
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

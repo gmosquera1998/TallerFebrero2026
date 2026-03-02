@@ -37,3 +37,10 @@
         - nfs
         - mountd
         - rpc-bind
+
+    - name: Copy test file to server
+      ansible.builtin.template:
+        src: ../templates/README-NFS.j2
+        dest: /srv/nfs/shared/README-NFS.txt
+        owner: nobody
+        mode: u=r,g=r,o=r  

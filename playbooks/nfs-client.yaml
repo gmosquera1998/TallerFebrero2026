@@ -1,0 +1,50 @@
+---
+- hosts: ubuntu
+  become: true
+
+  tasks:
+    - name: Install required packages
+      ansible.builtin.apt:
+        name: [autofs, nfs-common, python3]
+        state: present
+        update_cache: true
+
+    - name: Deploy Autofs Master Template
+      ansible.builtin.template:
+        src: ../templates/nfs.autofs.j2
+        dest: /etc/auto.master.d/nfs.autofs
+        mode: '0644'
+      notify: Restart autofs
+
+    - name: Deploy Autofs Map file
+      ansible.builtin.copy:
+        src: ../files/auto.nfs
+        dest: /etc/auto.nfs
+        mode: '0644'
+      notify: Restart autofs
+
+    - name: Deploy Python Webserver Service
+      ansible.builtin.template:
+        src: ../templates/shared-http.service.j2
+        dest: /etc/systemd/system/shared-http.service
+        mode: '0644'
+      notify: Restart shared-http
+
+    - name: Ensure services are started and enabled
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+        daemon_reload: true
+      loop: [autofs, shared-http]
+
+  handlers:
+    - name: Restart autofs
+      ansible.builtin.systemd_service:
+        name: autofs
+        state: restarted
+
+    - name: Restart shared-http
+      ansible.builtin.systemd_service:
+        name: shared-http
+        state: restarted   

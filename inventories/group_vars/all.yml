@@ -1,0 +1,4 @@
+ansible_user: sysadmin
+nfs_network: 192.168.10.0/24
+nfs_server_ip: 192.168.10.11
+autofs_timeout: 60
