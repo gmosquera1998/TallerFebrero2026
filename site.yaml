@@ -1,0 +1,6 @@
+---
+
+- import_playbook: playbooks/nfs-server.yaml
+- import_playbook: playbooks/nfs-client.yaml
+- import_playbook: playbooks/ubuntu-ufw.yaml
+- import_playbook: playbooks/webserver.yaml
